@@ -61,7 +61,7 @@ class HomecareWithMotion(MycroftSkill):
 
         # check both condition 1 hour gap and bedtime
         if gap.total_second() > 3600 and (wake_timeHour < current_hour < bed_timeHour):
-            self.speak_dialog("confirm.motion.dialog")
+            self.speak_dialog("confirm.motion")
 
     @intent_file_handler('motion.with.homecare.intent')
     def handle_motion_with_homecare(self, message):
