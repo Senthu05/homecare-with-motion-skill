@@ -10,4 +10,4 @@ class HomecareWithMotion(MycroftSkill):
 
 def create_skill():
     return HomecareWithMotion()
--
+
