@@ -38,7 +38,7 @@ class HomecareWithMotion(MycroftSkill):
 
         finally:
             self.schedule_repeating_event(self.handle_motion,
-                                          None, 0.1, 'check_motion')
+                                          None, 1, 'check_motion')
 
     def handle_motion(self, message):
         for x in range(len(sensor_room)):  # check all sensors
@@ -60,7 +60,7 @@ class HomecareWithMotion(MycroftSkill):
         # current_hour = datetime.now_local().time()
 
         # check both condition 1 hour gap and bedtime
-        if gap.total_second() > 30 and (wake_timeHour < current_hour < bed_timeHour):
+        if gap.total_second() > 30.0 and (wake_timeHour < current_hour < bed_timeHour):
             self.speak_dialog("confirm.motion")
 
     @intent_file_handler('motion.with.homecare.intent')
