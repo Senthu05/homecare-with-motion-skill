@@ -13,7 +13,7 @@ record_dic = {}  # record the motion
 sensor_room = ["living"]  # room name need to be assigned from the site
 bed_time = "210000"
 wake_time = "060000"
-gap_reset = False
+gap_reset = True
 
 
 class HomecareWithMotion(MycroftSkill):
@@ -61,9 +61,10 @@ class HomecareWithMotion(MycroftSkill):
         # current_hour = datetime.now_local().time()
 
         # check both condition 1 hour gap and bedtime
-        if gap.total_seconds() > 30 and (wake_timeHour < current_hour < bed_timeHour) and not gap_reset:
+        if gap.total_seconds() > 30 and (wake_timeHour < current_hour < bed_timeHour) and gap_reset:
             self.speak_dialog("confirm.motion")
-            gap_reset = True
+            global gap_reset
+            gap_reset = False
 
     @intent_file_handler('motion.with.homecare.intent')
     def handle_motion_with_homecare(self, message):
