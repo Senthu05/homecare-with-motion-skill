@@ -13,7 +13,8 @@ record_dic = {}  # record the motion
 sensor_room = ["living"]  # room name need to be assigned from the site
 bed_time = "210000"
 wake_time = "060000"
-gap_reset = True
+first_check_time = 30.0  # how frequently check the motion
+second_check_time = 20.0  # how long wait after no respond for first check
 
 
 class HomecareWithMotion(MycroftSkill):
@@ -46,7 +47,7 @@ class HomecareWithMotion(MycroftSkill):
             if GPIO.event_detected(sensor_pin[x]):
                 event_time = now_local()
                 record_dic["loc" + str(x)] = event_time
-        time_list = [k for k in record_dic.values()]  # all time values as list
+        time_list = [k for k in record_dic.values()]  # all, time values as list
 
         now = now_local()
         gap = now - (time_list[0] if len(time_list) >= 1 else now)  # random value
@@ -54,17 +55,40 @@ class HomecareWithMotion(MycroftSkill):
             temp_gap = now_local() - time_list[y]
             if temp_gap <= gap:
                 gap = temp_gap
-
+        gap_second = gap.total_seconds()  # convert the gap in second
         bed_timeHour = datetime.strptime(bed_time, "%H%M%S").time()
         wake_timeHour = datetime.strptime(wake_time, "%H%M%S").time()
         current_hour = now.time()
         # current_hour = datetime.now_local().time()
 
         # check both condition 1 hour gap and bedtime
-        global gap_reset
-        if gap.total_seconds() > 30 and (wake_timeHour < current_hour < bed_timeHour) and gap_reset:
-            self.speak_dialog("confirm.motion") 
-            gap_reset = False
+        if gap_second > first_check_time and (wake_timeHour < current_hour < bed_timeHour):
+            record_dic.clear()  # clear the dictionary
+            confirm = self.ask_yesno("confirm.motion")
+            if confirm == "yes":
+                self.speak_dialog("yes.confirmation")
+            elif confirm == "no":
+                title = "Immediate help needed"
+                body = "I have been asked for a help. Can you please check ?"
+                self.send_email(title, body)
+                self.speak("I have just sent a email")
+            elif confirm is None:
+                record_dic["No respond time"] = now_local() - timedelta(seconds=first_check_time - second_check_time)
+                # need to increase a count value to sent email after 2 times
+            else:
+                confuse = self.ask_yesno("again.confirm.motion")
+                if confuse == "yes":
+                    self.speak_dialog("yes.confirmation")
+                elif confuse == "no":
+                    title = "Immediate help needed"
+                    body = "I have been asked for a help. Can you please check ?"
+                    self.send_email(title, body)
+                    self.speak("I have just sent a email")
+                else:
+                    title = "Alert from Mycroft skill"
+                    body = "I am having trouble to communicate with, Can you please check ?"
+                    self.send_email(title, body)
+                    self.speak("email has been sent")
 
     @intent_file_handler('motion.with.homecare.intent')
     def handle_motion_with_homecare(self, message):
