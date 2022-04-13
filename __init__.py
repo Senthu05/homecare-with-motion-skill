@@ -61,7 +61,6 @@ class HomecareWithMotion(MycroftSkill):
         wake_timeHour = datetime.strptime(wake_time, "%H%M%S").time()
         current_hour = now.time()
         # current_hour = datetime.now_local().time()
-        self.log.info("before if condition")
         # check both condition 1 hour gap and bedtime
         if gap_second > first_check_time and (wake_timeHour < current_hour < bed_timeHour):
             self.log.info("if condition passed")
