@@ -45,6 +45,7 @@ class HomecareWithMotion(MycroftSkill):
     def handle_motion(self, message):
         for x in range(len(sensor_room)):  # check all sensors
             if GPIO.event_detected(sensor_pin[x]):
+                self.log.info("event detected")
                 event_time = now_local()
                 record_dic["loc" + str(x)] = event_time
         time_list = [k for k in record_dic.values()]  # all, time values as list
@@ -60,9 +61,10 @@ class HomecareWithMotion(MycroftSkill):
         wake_timeHour = datetime.strptime(wake_time, "%H%M%S").time()
         current_hour = now.time()
         # current_hour = datetime.now_local().time()
-
+        self.log.info("before if condition")
         # check both condition 1 hour gap and bedtime
         if gap_second > first_check_time and (wake_timeHour < current_hour < bed_timeHour):
+            self.log.info("if condition passed")
             record_dic.clear()  # clear the dictionary
             confirm = self.ask_yesno("confirm.motion")
             if confirm == "yes":
