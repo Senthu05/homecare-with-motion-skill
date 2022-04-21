@@ -59,9 +59,11 @@ class HomecareWithMotion(MycroftSkill):
        # gap = now - (time_list[0] if len(time_list) >= 1 else now)  # random value
         gap = timedelta(seconds=0)
         for y in range(len(time_list)):
+            self.log.info("for loop working")
             temp_gap = now_local() - time_list[y]
             if temp_gap <= gap:
                 gap = temp_gap
+                self.log.info("getting temp_gap value")
         gap_second = gap.total_seconds()  # convert the gap in second
         bed_timeHour = datetime.strptime(bed_time, "%H%M%S").time()
         wake_timeHour = datetime.strptime(wake_time, "%H%M%S").time()
@@ -69,6 +71,7 @@ class HomecareWithMotion(MycroftSkill):
 
         # check both condition 1 hour gap and bedtime
         if gap_second > first_check_time and (wake_timeHour < current_hour < bed_timeHour):
+            self.log.info("inside the main if")
             record_dic.clear()  # clear the dictionary
             record_dic["time interaction"] = now_local  # record the time (must, to check the different)
             confirm = self.ask_yesno("motion.confirmation")
