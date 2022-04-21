@@ -74,7 +74,7 @@ class HomecareWithMotion(MycroftSkill):
             record_dic["time interaction"] = now_local()  # record the time (must, to check the different)
             confirm = self.ask_yesno("motion.confirmation")
             if confirm == "yes":
-                self.speak_dialog("yes.confirmation")
+                self.speak_dialog("no.help.confirmation")
             elif confirm == "no":
                 # need to ask question about the email body
                 title = "Immediate help needed"
@@ -87,13 +87,13 @@ class HomecareWithMotion(MycroftSkill):
             else:
                 confuse = self.ask_yesno("again.confirm.motion")
                 if confuse == "no":
+                    self.speak_dialog("no.help.confirmation")
                     # need to ask question about the email body
+                elif confuse == "yes":
                     title = "Immediate help needed"
                     body = "I have been asked for a help. Can you please check ?"
                     self.send_email(title, body)
                     self.speak("I have just sent a email")
-                elif confuse == "yes":
-                    self.speak_dialog("yes.confirmation")
                 else:
                     title = "Alert from Mycroft skill"
                     body = "I am having trouble to communicate with, Can you please check ?"
