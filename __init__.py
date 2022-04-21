@@ -1,6 +1,7 @@
 import time
 import datetime
 import RPi.GPIO as GPIO
+import re
 
 from mycroft import MycroftSkill, intent_file_handler
 from datetime import datetime, timedelta
@@ -41,14 +42,18 @@ class HomecareWithMotion(MycroftSkill):
         finally:
             self.schedule_repeating_event(self.handle_motion,
                                           None, 1, 'check_motion')
+            record_dic["time loaded"] = now_local()
 
     def handle_motion(self, message):
         for x in range(len(sensor_room)):  # check all sensors
             if GPIO.event_detected(sensor_pin[x]):
                 self.log.info("event detected")
                 event_time = now_local()
-                record_dic["loc" + str(x)] = event_time
-        time_list = [k for k in record_dic.values()]  # all, time values as list
+                record_dic["time loc" + str(x)] = event_time
+        # time_list = [k for k in record_dic.values()]  # all, time values as
+
+        # get all the values which match the key start with "time" used regex pattern match
+        time_list = [v for k, v in record_dic.items() if bool(re.match("time", k))]
 
         now = now_local()
         gap = now - (time_list[0] if len(time_list) >= 1 else now)  # random value
@@ -60,15 +65,16 @@ class HomecareWithMotion(MycroftSkill):
         bed_timeHour = datetime.strptime(bed_time, "%H%M%S").time()
         wake_timeHour = datetime.strptime(wake_time, "%H%M%S").time()
         current_hour = now.time()
-        # current_hour = datetime.now_local().time()
+
         # check both condition 1 hour gap and bedtime
         if gap_second > first_check_time and (wake_timeHour < current_hour < bed_timeHour):
-            self.log.info("if condition passed")
             record_dic.clear()  # clear the dictionary
-            confirm = self.ask_yesno("confirm.motion")
+            record_dic["time interaction"] = now_local  # record the time (must, to check the different)
+            confirm = self.ask_yesno("motion.confirmation")
             if confirm == "yes":
                 self.speak_dialog("yes.confirmation")
             elif confirm == "no":
+                # need to ask question about the email body
                 title = "Immediate help needed"
                 body = "I have been asked for a help. Can you please check ?"
                 self.send_email(title, body)
@@ -78,13 +84,14 @@ class HomecareWithMotion(MycroftSkill):
                 # need to increase a count value to sent email after 2 times
             else:
                 confuse = self.ask_yesno("again.confirm.motion")
-                if confuse == "yes":
-                    self.speak_dialog("yes.confirmation")
-                elif confuse == "no":
+                if confuse == "no":
+                    # need to ask question about the email body
                     title = "Immediate help needed"
                     body = "I have been asked for a help. Can you please check ?"
                     self.send_email(title, body)
                     self.speak("I have just sent a email")
+                elif confuse == "yes":
+                    self.speak_dialog("yes.confirmation")
                 else:
                     title = "Alert from Mycroft skill"
                     body = "I am having trouble to communicate with, Can you please check ?"
