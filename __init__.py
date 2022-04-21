@@ -55,8 +55,9 @@ class HomecareWithMotion(MycroftSkill):
         # get all the values which match the key start with "time" used regex pattern match
         time_list = [v for k, v in record_dic.items() if bool(re.match("time", k))]
 
-        now = now_local()
-        gap = now - (time_list[0] if len(time_list) >= 1 else now)  # random value
+       # now = now_local()
+       # gap = now - (time_list[0] if len(time_list) >= 1 else now)  # random value
+        gap = timedelta(seconds=0)
         for y in range(len(time_list)):
             temp_gap = now_local() - time_list[y]
             if temp_gap <= gap:
@@ -64,7 +65,7 @@ class HomecareWithMotion(MycroftSkill):
         gap_second = gap.total_seconds()  # convert the gap in second
         bed_timeHour = datetime.strptime(bed_time, "%H%M%S").time()
         wake_timeHour = datetime.strptime(wake_time, "%H%M%S").time()
-        current_hour = now.time()
+        current_hour = now_local.time()
 
         # check both condition 1 hour gap and bedtime
         if gap_second > first_check_time and (wake_timeHour < current_hour < bed_timeHour):
