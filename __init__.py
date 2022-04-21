@@ -74,8 +74,7 @@ class HomecareWithMotion(MycroftSkill):
         if gap_second > first_check_time and (wake_timeHour < current_hour < bed_timeHour):
             self.log.info("inside the main if")
             record_dic.clear()  # clear the dictionary
-            time_list.clear()
-            record_dic["time interaction"] = now_local  # record the time (must, to check the different)
+            record_dic["time interaction"] = now_local()  # record the time (must, to check the different)
             confirm = self.ask_yesno("motion.confirmation")
             if confirm == "yes":
                 self.speak_dialog("yes.confirmation")
