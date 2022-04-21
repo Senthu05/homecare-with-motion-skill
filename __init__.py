@@ -57,7 +57,7 @@ class HomecareWithMotion(MycroftSkill):
 
         now = now_local()
         # gap = now - (time_list[0] if len(time_list) >= 1 else now)  # random value
-        gap = timedelta(seconds=first_check_time)
+        gap = timedelta(seconds=first_check_time + 1.0)
         for y in range(len(time_list)):
             temp_gap = now_local() - time_list[y]
             if temp_gap <= gap:
