@@ -17,7 +17,6 @@ wake_time = "060000"
 first_check_time = 30.0  # how frequently check the motion
 second_check_time = 20.0  # how long wait after no respond for first check
 
-
 class HomecareWithMotion(MycroftSkill):
     def __init__(self):
         MycroftSkill.__init__(self)
@@ -105,7 +104,6 @@ class HomecareWithMotion(MycroftSkill):
     @intent_file_handler('motion.with.homecare.intent')
     def handle_motion_with_homecare(self, message):
         self.speak_dialog('motion.with.homecare')
-
 
 def create_skill():
     return HomecareWithMotion()
