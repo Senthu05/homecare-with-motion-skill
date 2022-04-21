@@ -17,6 +17,7 @@ wake_time = "060000"
 first_check_time = 30.0  # how frequently check the motion
 second_check_time = 20.0  # how long wait after no respond for first check
 
+
 class HomecareWithMotion(MycroftSkill):
     def __init__(self):
         MycroftSkill.__init__(self)
@@ -55,10 +56,9 @@ class HomecareWithMotion(MycroftSkill):
         time_list = [v for k, v in record_dic.items() if bool(re.match("time", k))]
 
         now = now_local()
-       # gap = now - (time_list[0] if len(time_list) >= 1 else now)  # random value
-        gap = timedelta(seconds=0)
+        # gap = now - (time_list[0] if len(time_list) >= 1 else now)  # random value
+        gap = timedelta(seconds=first_check_time)
         for y in range(len(time_list)):
-            self.log.info("for loop working")
             temp_gap = now_local() - time_list[y]
             if temp_gap <= gap:
                 gap = temp_gap
@@ -104,6 +104,7 @@ class HomecareWithMotion(MycroftSkill):
     @intent_file_handler('motion.with.homecare.intent')
     def handle_motion_with_homecare(self, message):
         self.speak_dialog('motion.with.homecare')
+
 
 def create_skill():
     return HomecareWithMotion()
