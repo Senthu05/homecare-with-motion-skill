@@ -82,6 +82,7 @@ class HomecareWithMotion(MycroftSkill):
                 self.send_email(title, body)
                 self.speak("I have just sent a email")
             elif confirm is None:
+                record_dic.clear()
                 record_dic["No respond time"] = now_local() - timedelta(seconds=first_check_time - second_check_time)
                 # need to increase a count value to sent email after 2 times
             else:
