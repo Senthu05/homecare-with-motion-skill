@@ -14,8 +14,8 @@ record_dic = {}  # record the motion
 sensor_room = ["living"]  # room name need to be assigned from the site
 bed_time = "210000"
 wake_time = "060000"
-first_check_time = 30.0  # how frequently check the motion
-second_check_time = 20.0  # how long wait after no respond for first check
+first_check_time = 60.0  # how frequently check the motion
+second_check_time = 40.0  # how long wait after no respond for first check
 
 
 class HomecareWithMotion(MycroftSkill):
@@ -63,16 +63,13 @@ class HomecareWithMotion(MycroftSkill):
             if temp_gap <= gap:
                 gap = temp_gap
 
-        self.log.info(gap)
         gap_second = gap.total_seconds()  # convert the gap in second
         bed_timeHour = datetime.strptime(bed_time, "%H%M%S").time()
         wake_timeHour = datetime.strptime(wake_time, "%H%M%S").time()
         current_hour = now.time()
-        self.log.info(gap_second)
 
         # check both condition 1 hour gap and bedtime
         if gap_second > first_check_time and (wake_timeHour < current_hour < bed_timeHour):
-            self.log.info("inside the main if")
             record_dic.clear()  # clear the dictionary
             record_dic["time interaction"] = now_local()  # record the time (must, to check the different)
             confirm = self.ask_yesno("motion.confirmation")
