@@ -105,6 +105,5 @@ class HomecareWithMotion(MycroftSkill):
     def handle_motion_with_homecare(self, message):
         self.speak_dialog('motion.with.homecare')
 
-
 def create_skill():
     return HomecareWithMotion()
