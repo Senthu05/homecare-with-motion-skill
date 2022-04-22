@@ -97,7 +97,8 @@ class HomecareWithMotion(MycroftSkill):
         elif confirm is None:
             global no_respond_flag
             if no_respond_flag:
-                self.schedule_event(self.is_None_handler, None, second_check_time)
+                when = now_local() + timedelta(seconds=second_check_time)
+                self.schedule_event(self.is_None_handler, when, name="second_check_time")
                 no_respond_flag = not no_respond_flag
                 record_dic["No respond"] = now_local()
             else:
@@ -107,7 +108,7 @@ class HomecareWithMotion(MycroftSkill):
                 self.send_email(title, body)
                 record_dic["again no respond"] = now_local()
         else:
-            confuse = self.ask_yesno("again.confirm.motion") # do you need help?
+            confuse = self.ask_yesno("again.confirm.motion")  # do you need help?
             if confuse == "no":
                 self.speak_dialog("no.help.confirmation")
                 # need to ask question about the email body
