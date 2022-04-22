@@ -73,11 +73,10 @@ class HomecareWithMotion(MycroftSkill):
         # check both condition 1 hour gap and bedtime
         if gap_second > first_check_time and (wake_timeHour < current_hour < bed_timeHour):
             self.log.info(time_list)
-            time_list.clear()
-            record_dic.clear()  # clear the dictionary
-            record_dic["time interaction"] = now_local()  # record the time (must, to check the different)
             confirm = self.ask_yesno("motion.confirmation")
             self.verify_yesno(confirm)
+            record_dic.clear()  # clear the dictionary
+            record_dic["time interaction"] = now_local()  # record the time (must, to check the different)
 
     def is_None_handler(self):
         confirm = self.ask_yesno("no.Respond.confirmation")
