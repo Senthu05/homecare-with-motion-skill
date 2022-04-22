@@ -75,7 +75,7 @@ class HomecareWithMotion(MycroftSkill):
             record_dic.clear()  # clear the dictionary
             record_dic["time interaction"] = now_local()  # record the time (must, to check the different)
             confirm = self.ask_yesno("motion.confirmation")
-            self.verify_yesno(confirm)
+            self.verify_yesno(self, confirm)
 
     def is_None_handler(self):
         confirm = self.ask_yesno("motion.confirmation")
@@ -95,8 +95,7 @@ class HomecareWithMotion(MycroftSkill):
         elif confirm is None:
             global no_respond_flag
             if no_respond_flag:
-                self.schedule_event(self.is_None_handler, None, second_check_time, data=None, name='no_respond',
-                                    context=None)
+                self.schedule_event(self.is_None_handler, None, second_check_time, None, 'no_respond')
                 no_respond_flag = not no_respond_flag
                 record_dic["No respond"] = now_local()
             else:
