@@ -71,7 +71,7 @@ class HomecareWithMotion(MycroftSkill):
         current_hour = now.time()
 
         # check both condition 1 hour gap and bedtime
-        if gap_second >= first_check_time and (wake_timeHour < current_hour < bed_timeHour):
+        if gap_second >= first_check_time.total_seconds() and (wake_timeHour < current_hour < bed_timeHour):
             self.log.info(time_list)
             confirm = self.ask_yesno("motion.confirmation")
             self.verify_yesno(confirm)
