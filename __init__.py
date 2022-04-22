@@ -59,7 +59,7 @@ class HomecareWithMotion(MycroftSkill):
 
         now = now_local()
         # gap = now - (time_list[0] if len(time_list) >= 1 else now)  # random value
-        gap = timedelta(seconds=first_check_time + 1.0)
+        gap = first_check_time 
         for y in range(len(time_list)):
             temp_gap = now - time_list[y]
             if temp_gap <= gap:
@@ -71,7 +71,7 @@ class HomecareWithMotion(MycroftSkill):
         current_hour = now.time()
 
         # check both condition 1 hour gap and bedtime
-        if gap_second > first_check_time and (wake_timeHour < current_hour < bed_timeHour):
+        if gap_second >= first_check_time and (wake_timeHour < current_hour < bed_timeHour):
             self.log.info(time_list)
             confirm = self.ask_yesno("motion.confirmation")
             self.verify_yesno(confirm)
