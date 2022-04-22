@@ -86,6 +86,7 @@ class HomecareWithMotion(MycroftSkill):
         self.verify_yesno(confirm)
 
     def verify_yesno(self, confirm):
+        self.log.info("I am here in verify_yesno function")
         if confirm == "yes":
             self.speak_dialog("no.help.confirmation")
         elif confirm == "no":
