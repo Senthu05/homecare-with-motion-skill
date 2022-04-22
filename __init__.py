@@ -42,7 +42,7 @@ class HomecareWithMotion(MycroftSkill):
 
         finally:
             self.schedule_repeating_event(self.handle_motion,
-                                          None, 10, 'check_motion')
+                                          None, 30, 'check_motion')
             record_dic["time loaded"] = now_local()
 
     def handle_motion(self, message):
