@@ -16,6 +16,7 @@ bed_time = "210000"
 wake_time = "060000"
 first_check_time = 60.0  # how frequently check the motion
 second_check_time = 40.0  # how long wait after no respond for first check
+no_respond_flag = True
 
 
 class HomecareWithMotion(MycroftSkill):
@@ -50,6 +51,7 @@ class HomecareWithMotion(MycroftSkill):
                 self.log.info("event detected")
                 event_time = now_local()
                 record_dic["time loc" + str(x)] = event_time
+                self.cancel_scheduled_event('no_respond')
         # time_list = [k for k in record_dic.values()]  # all, time values as
 
         # get all the values which match the key start with "time" used regex pattern match
@@ -73,37 +75,56 @@ class HomecareWithMotion(MycroftSkill):
             record_dic.clear()  # clear the dictionary
             record_dic["time interaction"] = now_local()  # record the time (must, to check the different)
             confirm = self.ask_yesno("motion.confirmation")
-            if confirm == "yes":
+            self.verify_yesno(confirm)
+
+    def is_None_handler(self):
+        confirm = self.ask_yesno("motion.confirmation")
+        if confirm == "yes":
+            record_dic["confirmation time for 2nd attempt"] = now_local()
+        self.verify_yesno(confirm)
+
+    def verify_yesno(self, confirm):
+        if confirm == "yes":
+            self.speak_dialog("no.help.confirmation")
+        elif confirm == "no":
+            # need to ask question about the email body
+            title = "Immediate help needed"
+            body = "I have been asked for a help. Can you please check ?"
+            self.send_email(title, body)
+            self.speak("I have just sent a email")
+        elif confirm is None:
+            global no_respond_flag
+            if no_respond_flag:
+                self.schedule_event(self.is_None_handler, None, second_check_time, data=None, name='no_respond',
+                                    context=None)
+                no_respond_flag = not no_respond_flag
+                record_dic["No respond"] = now_local()
+            else:
+                # this else part will run on the second check
+                title = "Immediate help needed"
+                body = "I don't get any respond, Could you please check it?"
+                self.send_email(title, body)
+                record_dic["again no respond"] = now_local()
+        else:
+            confuse = self.ask_yesno("again.confirm.motion") # do you need help?
+            if confuse == "no":
                 self.speak_dialog("no.help.confirmation")
-            elif confirm == "no":
                 # need to ask question about the email body
+            elif confuse == "yes":
                 title = "Immediate help needed"
                 body = "I have been asked for a help. Can you please check ?"
                 self.send_email(title, body)
                 self.speak("I have just sent a email")
-            elif confirm is None:
-                record_dic.clear()
-                record_dic["No respond time"] = now_local() - timedelta(seconds=first_check_time - second_check_time)
-                # need to increase a count value to sent email after 2 times
             else:
-                confuse = self.ask_yesno("again.confirm.motion")
-                if confuse == "no":
-                    self.speak_dialog("no.help.confirmation")
-                    # need to ask question about the email body
-                elif confuse == "yes":
-                    title = "Immediate help needed"
-                    body = "I have been asked for a help. Can you please check ?"
-                    self.send_email(title, body)
-                    self.speak("I have just sent a email")
-                else:
-                    title = "Alert from Mycroft skill"
-                    body = "I am having trouble to communicate with, Can you please check ?"
-                    self.send_email(title, body)
-                    self.speak("email has been sent")
+                title = "Alert from Mycroft skill"
+                body = "I am having trouble to communicate with, Can you please check ?"
+                self.send_email(title, body)
+                self.speak("email has been sent")
 
     @intent_file_handler('motion.with.homecare.intent')
     def handle_motion_with_homecare(self, message):
         self.speak_dialog('motion.with.homecare')
+
 
 def create_skill():
     return HomecareWithMotion()
