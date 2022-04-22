@@ -42,7 +42,7 @@ class HomecareWithMotion(MycroftSkill):
 
         finally:
             self.schedule_repeating_event(self.handle_motion,
-                                          None, 10, 'check_motion')
+                                          None, 20, name='check_motion')
             record_dic["time loaded"] = now_local()
 
     def handle_motion(self, message):
@@ -73,11 +73,11 @@ class HomecareWithMotion(MycroftSkill):
         # check both condition 1 hour gap and bedtime
         if gap_second >= first_check_time.total_seconds() and (wake_timeHour < current_hour < bed_timeHour):
             self.log.info(time_list)
-            confirm = self.ask_yesno("motion.confirmation")
-            self.verify_yesno(confirm)
             record_dic.clear()  # clear the dictionary
             record_dic["time interaction"] = now_local()  # record the time (must, to check the different)
-
+            confirm = self.ask_yesno("motion.confirmation")
+            self.verify_yesno(confirm)
+            
     def is_None_handler(self):
         confirm = self.ask_yesno("no.Respond.confirmation")
         if confirm == "yes":
@@ -98,7 +98,7 @@ class HomecareWithMotion(MycroftSkill):
             global no_respond_flag
             if no_respond_flag:
                 when = now_local() + timedelta(seconds=second_check_time)
-                self.schedule_event(self.is_None_handler, when, name="second_check_time")
+                self.schedule_event(self.is_None_handler, when, name="no_respond")
                 no_respond_flag = not no_respond_flag
                 record_dic["No respond"] = now_local()
             else:
