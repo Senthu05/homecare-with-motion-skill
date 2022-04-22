@@ -15,7 +15,7 @@ sensor_room = ["living"]  # room name need to be assigned from the site
 bed_time = "210000"
 wake_time = "060000"
 first_check_time = timedelta(seconds=60)  # how frequently check the motion
-second_check_time = timedelta(seconds=40)  # how long wait after no respond for first check
+second_check_time = 40.0  # how long wait after no respond for first check
 no_respond_flag = True
 
 
@@ -59,7 +59,7 @@ class HomecareWithMotion(MycroftSkill):
 
         now = now_local()
         # gap = now - (time_list[0] if len(time_list) >= 1 else now)  # random value
-        gap = first_check_time 
+        gap = first_check_time
         for y in range(len(time_list)):
             temp_gap = now - time_list[y]
             if temp_gap <= gap:
@@ -97,7 +97,7 @@ class HomecareWithMotion(MycroftSkill):
         elif confirm is None:
             global no_respond_flag
             if no_respond_flag:
-                self.schedule_event(self.is_None_handler, None, second_check_time, None, 'no_respond')
+                self.schedule_event(self.is_None_handler, None, second_check_time)
                 no_respond_flag = not no_respond_flag
                 record_dic["No respond"] = now_local()
             else:
