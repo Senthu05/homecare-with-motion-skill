@@ -75,10 +75,10 @@ class HomecareWithMotion(MycroftSkill):
             record_dic.clear()  # clear the dictionary
             record_dic["time interaction"] = now_local()  # record the time (must, to check the different)
             confirm = self.ask_yesno("motion.confirmation")
-            self.verify_yesno(self, confirm)
+            self.verify_yesno(confirm)
 
     def is_None_handler(self):
-        confirm = self.ask_yesno("motion.confirmation")
+        confirm = self.ask_yesno("no.Respond.confirmation")
         if confirm == "yes":
             record_dic["confirmation time for 2nd attempt"] = now_local()
         self.verify_yesno(confirm)
