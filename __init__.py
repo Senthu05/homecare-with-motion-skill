@@ -14,8 +14,8 @@ record_dic = {}  # record the motion
 sensor_room = ["living"]  # room name need to be assigned from the site
 bed_time = "210000"
 wake_time = "060000"
-first_check_time = 60.0  # how frequently check the motion
-second_check_time = 40.0  # how long wait after no respond for first check
+first_check_time = timedelta(seconds=60)  # how frequently check the motion
+second_check_time = timedelta(seconds=40)  # how long wait after no respond for first check
 no_respond_flag = True
 
 
@@ -42,7 +42,7 @@ class HomecareWithMotion(MycroftSkill):
 
         finally:
             self.schedule_repeating_event(self.handle_motion,
-                                          None, 30, 'check_motion')
+                                          None, 10, 'check_motion')
             record_dic["time loaded"] = now_local()
 
     def handle_motion(self, message):
