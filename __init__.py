@@ -97,7 +97,7 @@ class HomecareWithMotion(MycroftSkill):
         elif confirm is None:
             global no_respond_flag
             if no_respond_flag:
-                self.schedule_event(self.is_None_handler, None, second_check_time, None, 'no_respond', None)
+                self.schedule_event(self.is_None_handler, None, second_check_time, None, 'no_respond')
                 no_respond_flag = not no_respond_flag
                 record_dic["No respond"] = now_local()
             else:
