@@ -35,7 +35,6 @@ class HomecareWithMotion(MycroftSkill):
                 GPIO.remove_event_detect(sensor_pin[x])
                 GPIO.add_event_detect(sensor_pin[x], GPIO.RISING,
                                       bouncetime=500)  # high bounce time to avoid the event frequently detection
-
         except:
             self.log.warning("Can't initialize GPIO - skill will not load")
             self.speak_dialog("error.initialize")  # create the error.initialise.dialog file
@@ -44,39 +43,6 @@ class HomecareWithMotion(MycroftSkill):
             self.schedule_repeating_event(self.handle_motion,
                                           None, 20, name='check_motion')
             record_dic["time loaded"] = now_local()
-
-    def handle_motion(self, message):
-        for x in range(len(sensor_room)):  # check all sensors
-            if GPIO.event_detected(sensor_pin[x]):
-                self.log.info("event detected")
-                event_time = now_local()
-                record_dic["time loc" + str(x)] = event_time
-                self.cancel_scheduled_event('no_respond')
-        # time_list = [k for k in record_dic.values()]  # all, time values as
-
-        # get all the values which match the key start with "time" used regex pattern match
-        time_list = [v for k, v in record_dic.items() if bool(re.match("time", k))]
-
-        now = now_local()
-        # gap = now - (time_list[0] if len(time_list) >= 1 else now)  # random value
-        gap = first_check_time
-        for y in range(len(time_list)):
-            temp_gap = now - time_list[y]
-            if temp_gap <= gap:
-                gap = temp_gap
-
-        gap_second = gap.total_seconds()  # convert the gap in second
-        bed_timeHour = datetime.strptime(bed_time, "%H%M%S").time()
-        wake_timeHour = datetime.strptime(wake_time, "%H%M%S").time()
-        current_hour = now.time()
-
-        # check both condition 1 hour gap and bedtime
-        if gap_second >= first_check_time.total_seconds() and (wake_timeHour < current_hour < bed_timeHour):
-            self.log.info(time_list)
-            record_dic.clear()  # clear the dictionary
-            record_dic["time interaction"] = now_local()  # record the time (must, to check the different)
-            confirm = self.ask_yesno("motion.confirmation")
-            self.verify_yesno(confirm)
 
     def is_None_handler(self):
         confirm = self.ask_yesno("no.Respond.confirmation")
@@ -96,20 +62,19 @@ class HomecareWithMotion(MycroftSkill):
             self.send_email(title, body)
             self.speak("I have just sent a email")
         elif confirm is None:
-            self.speak_dialog("here at none function")
-            # global no_respond_flag
-            # if no_respond_flag:
-            #     when = now_local() + timedelta(seconds=second_check_time)
-            #     self.schedule_event(self.is_None_handler, when, name="no_respond")
-            #     self.log.info("after schedule event")
-            #     no_respond_flag = not no_respond_flag
-            #     record_dic["No respond"] = now_local()
-            # else:
-            #     # this else part will run on the second check
-            #     title = "Immediate help needed"
-            #     body = "I don't get any respond, Could you please check it?"
-            #     self.send_email(title, body)
-            #     record_dic["again no respond"] = now_local()
+            global no_respond_flag
+            if no_respond_flag:
+                when = now_local() + timedelta(seconds=second_check_time)
+                self.schedule_event(self.is_None_handler, when, name="no_respond")
+                self.log.info("after schedule event")
+                no_respond_flag = not no_respond_flag
+                record_dic["No respond"] = now_local()
+            else:
+                # this else part will run on the second check
+                title = "Immediate help needed"
+                body = "I don't get any respond, Could you please check it?"
+                self.send_email(title, body)
+                record_dic["again no respond"] = now_local()
         else:
             confuse = self.ask_yesno("again.confirm.motion")  # do you need help?
             if confuse == "no":
@@ -125,6 +90,37 @@ class HomecareWithMotion(MycroftSkill):
                 body = "I am having trouble to communicate with, Can you please check ?"
                 self.send_email(title, body)
                 self.speak("email has been sent")
+
+    def handle_motion(self, message):
+        for x in range(len(sensor_room)):  # check all sensors
+            if GPIO.event_detected(sensor_pin[x]):
+                self.log.info("event detected")
+                event_time = now_local()
+                record_dic["time loc" + str(x)] = event_time
+                self.cancel_scheduled_event('no_respond')
+
+        # get all the values which match the key start with "time" used regex pattern match
+        time_list = [v for k, v in record_dic.items() if bool(re.match("time", k))]
+
+        now = now_local()
+        gap = first_check_time  # random value
+        for y in range(len(time_list)):
+            temp_gap = now - time_list[y]
+            if temp_gap <= gap:
+                gap = temp_gap
+
+        gap_second = gap.total_seconds()  # convert the gap in second
+        bed_timeHour = datetime.strptime(bed_time, "%H%M%S").time()
+        wake_timeHour = datetime.strptime(wake_time, "%H%M%S").time()
+        current_hour = now.time()
+
+        # check both condition 1 hour gap and bedtime
+        if gap_second >= first_check_time.total_seconds() and (wake_timeHour < current_hour < bed_timeHour):
+            self.log.info(time_list)
+            record_dic.clear()  # clear the dictionary
+            record_dic["time interaction"] = now_local()  # record the time (must, to check the different)
+            confirm = self.ask_yesno("motion.confirmation")
+            self.verify_yesno(confirm)
 
     @intent_file_handler('motion.with.homecare.intent')
     def handle_motion_with_homecare(self, message):
