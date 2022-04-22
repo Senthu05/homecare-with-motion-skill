@@ -42,7 +42,7 @@ class HomecareWithMotion(MycroftSkill):
 
         finally:
             self.schedule_repeating_event(self.handle_motion,
-                                          None, 1, 'check_motion')
+                                          None, 10, 'check_motion')
             record_dic["time loaded"] = now_local()
 
     def handle_motion(self, message):
@@ -72,6 +72,8 @@ class HomecareWithMotion(MycroftSkill):
 
         # check both condition 1 hour gap and bedtime
         if gap_second > first_check_time and (wake_timeHour < current_hour < bed_timeHour):
+            self.log.info(time_list)
+            time_list.clear()
             record_dic.clear()  # clear the dictionary
             record_dic["time interaction"] = now_local()  # record the time (must, to check the different)
             confirm = self.ask_yesno("motion.confirmation")
