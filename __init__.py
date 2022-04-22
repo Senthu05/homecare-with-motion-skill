@@ -77,11 +77,12 @@ class HomecareWithMotion(MycroftSkill):
             record_dic["time interaction"] = now_local()  # record the time (must, to check the different)
             confirm = self.ask_yesno("motion.confirmation")
             self.verify_yesno(confirm)
-            
+
     def is_None_handler(self):
         confirm = self.ask_yesno("no.Respond.confirmation")
+        self.log.info("schedule handler working")
         if confirm == "yes":
-            record_dic["confirmation time for 2nd attempt"] = now_local()
+            record_dic["time : got the respond for 2nd attempt"] = now_local()
         self.verify_yesno(confirm)
 
     def verify_yesno(self, confirm):
@@ -99,6 +100,7 @@ class HomecareWithMotion(MycroftSkill):
             if no_respond_flag:
                 when = now_local() + timedelta(seconds=second_check_time)
                 self.schedule_event(self.is_None_handler, when, name="no_respond")
+                self.log.info("after schedule event")
                 no_respond_flag = not no_respond_flag
                 record_dic["No respond"] = now_local()
             else:
