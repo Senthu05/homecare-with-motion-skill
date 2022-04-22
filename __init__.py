@@ -96,7 +96,7 @@ class HomecareWithMotion(MycroftSkill):
             self.send_email(title, body)
             self.speak("I have just sent a email")
         elif confirm is None:
-            self.speak_dialong("here at none function")
+            self.speak_dialog("here at none function")
             # global no_respond_flag
             # if no_respond_flag:
             #     when = now_local() + timedelta(seconds=second_check_time)
