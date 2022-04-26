@@ -17,6 +17,7 @@ wake_time = "060000"
 first_check_time = timedelta(seconds=60)  # how frequently check the motion
 second_check_time = 20.0  # how long wait after no respond for first check
 no_respond_flag = True
+count = 0
 
 
 class HomecareWithMotion(MycroftSkill):
@@ -64,9 +65,7 @@ class HomecareWithMotion(MycroftSkill):
         elif confirm is None:
             global no_respond_flag
             if no_respond_flag:
-                # when = now_local() + timedelta(seconds=second_check_time)
-                when = second_check_time
-                self.schedule_event(self.is_None_handler, when, name="no_respond")
+                self.schedule_event(self.is_None_handler, second_check_time, name="no_respond")
                 self.log.info("after schedule event")
                 no_respond_flag = not no_respond_flag
                 record_dic["No respond"] = now_local()
@@ -121,6 +120,9 @@ class HomecareWithMotion(MycroftSkill):
             record_dic.clear()  # clear the dictionary
             record_dic["time interaction"] = now_local()  # record the time (must, to check the different)
             confirm = self.ask_yesno("motion.confirmation", data=None)
+            global count
+            count = count + 1
+            self.log.info(count)
             self.verify_yesno(confirm)
 
     @intent_file_handler('motion.with.homecare.intent')
