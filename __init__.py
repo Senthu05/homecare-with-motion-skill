@@ -64,7 +64,8 @@ class HomecareWithMotion(MycroftSkill):
         elif confirm is None:
             global no_respond_flag
             if no_respond_flag:
-                when = now_local() + timedelta(seconds=second_check_time)
+                # when = now_local() + timedelta(seconds=second_check_time)
+                when = second_check_time
                 self.schedule_event(self.is_None_handler, when, name="no_respond")
                 self.log.info("after schedule event")
                 no_respond_flag = not no_respond_flag
@@ -119,12 +120,7 @@ class HomecareWithMotion(MycroftSkill):
             self.log.info(time_list)
             record_dic.clear()  # clear the dictionary
             record_dic["time interaction"] = now_local()  # record the time (must, to check the different)
-            confirm = " "
-            try:
-                confirm = self.ask_yesno("motion.confirmation", data=None)
-
-            except:
-                pass
+            confirm = self.ask_yesno("motion.confirmation", data=None)
             self.verify_yesno(confirm)
 
     @intent_file_handler('motion.with.homecare.intent')
