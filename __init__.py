@@ -119,10 +119,10 @@ class HomecareWithMotion(MycroftSkill):
             self.log.info(time_list)
             record_dic.clear()  # clear the dictionary
             record_dic["time interaction"] = now_local()  # record the time (must, to check the different)
-            confirm = self.ask_yesno("motion.confirmation", data=None)
             global count
             count = count + 1
             self.log.info(count)
+            confirm = self.ask_yesno("motion.confirmation", data=None)
             self.verify_yesno(confirm)
 
     @intent_file_handler('motion.with.homecare.intent')
