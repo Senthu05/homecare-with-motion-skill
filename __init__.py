@@ -46,7 +46,7 @@ class HomecareWithMotion(MycroftSkill):
             record_dic["time loaded"] = now_local()
 
     def is_None_handler(self):
-        confirm = self.ask_yesno("no.Respond.confirmation")
+        confirm = self.ask_yesno("no.Respond.confirmation", data={})
         self.log.info("schedule handler working")
         if confirm == "yes":
             record_dic["time : got the respond for 2nd attempt"] = now_local()
@@ -123,7 +123,7 @@ class HomecareWithMotion(MycroftSkill):
             global count
             count = count + 1
             self.log.info(count)
-            confirm = self.ask_yesno("motion.confirmation", data=None)
+            confirm = self.ask_yesno("motion.confirmation", data={})
             self.verify_yesno(confirm)
 
     @intent_file_handler('motion.with.homecare.intent')
