@@ -92,6 +92,7 @@ class HomecareWithMotion(MycroftSkill):
                 self.speak("email has been sent")
 
     def handle_motion(self, message):
+        global record_dic
         for x in range(len(sensor_room)):  # check all sensors
             if GPIO.event_detected(sensor_pin[x]):
                 self.log.info("event detected")
