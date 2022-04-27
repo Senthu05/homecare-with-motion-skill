@@ -104,10 +104,10 @@ class HomecareWithMotion(MycroftSkill):
         time_list = [v for k, v in record_dic.items() if bool(re.match("time", k))]
 
         now = now_local()
-        gap = first_check_time  # random value
+        gap = timedelta(seconds=0)  # random value
         for y in range(len(time_list)):
             temp_gap = now - time_list[y]
-            if temp_gap <= gap:
+            if temp_gap > gap:
                 gap = temp_gap
 
         gap_second = gap.total_seconds()  # convert the gap in second
