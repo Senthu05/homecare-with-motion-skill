@@ -18,6 +18,8 @@ wake_time = "060000"
 first_check_time = timedelta(seconds=60)  # how frequently check the motion
 second_check_time = 20.0  # how long wait after no respond for first check
 no_respond_flag = True
+no_email_flag = True
+more_question_handler_flag = True
 
 
 class HomecareWithMotion(MycroftSkill):
@@ -86,12 +88,19 @@ class HomecareWithMotion(MycroftSkill):
         self.speak_dialog('motion.with.homecare')
 
     def conversation(self):
+        global no_email_flag
+        no_email_flag = not no_email_flag # if user  say not to inform even user not well just wait only one time
         resp = self.get_response("motion.confirmation")
         if self.voc_match(resp, 'yes'):
             self.speak_dialog("no.help.confirmation")
         elif self.voc_match(resp, 'no'):
             no_resp = self.get_response("how.can.i.help")
-            self.help(no_resp)
+            if self.voc_match(no_resp, "no"):
+                title = "help requested"
+                body = "Hi, identified that system con not help "
+                self.mail(title, body)
+            else:
+                self.help(no_resp)
         elif resp is not None:
             self.help(resp)
         else:
@@ -105,7 +114,7 @@ class HomecareWithMotion(MycroftSkill):
                 self.schedule_event(self.conversation, second_check_time, name="no_respond")
 
     def mail(self, title, utterance):
-        body = "Hi,\n This is the respond I received" + utterance
+        body = "Hi,\n This is the respond I received \" " + utterance + " \""
         self.send_email(title, body)
 
     def help(self, response):
@@ -126,12 +135,17 @@ class HomecareWithMotion(MycroftSkill):
             if yes_no == "yes":
                 title = ask_to_inform_words[0]
                 self.mail(title, response)
+            elif yes_no == "no":
+                if no_email_flag:
+                    title = "requested rejected to email 2 times"
+                    self.mail(title, response)
+            # need to handle else as schedule  event or email
         elif len(medicine_words) > 0:
             title = medicine_words[0]
             yes_no = self.ask_yesno("medicine", data={})
             if yes_no == "no":
                 title = "Did not get medicine"
-                self.speak("You better get medicine now")
+                self.speak("You better get medicine now, It might be the reason")
             elif yes_no == "yes":
                 self.speak("good to hear that you got medicine")
                 title = medicine_words[0]
@@ -153,8 +167,15 @@ class HomecareWithMotion(MycroftSkill):
             self.mail(title, response)
 
     def more_question_handler(self):
-        resp = self.get_response("more.question")
-        self.help(resp)
+        global more_question_handler_flag
+        more_question_handler_flag = not more_question_handler_flag
+        if more_question_handler_flag:
+            title = "need some help"
+            body = "Hi \nResident is confusing, you better check"
+            self.send_email(title, body)
+        else:
+            resp = self.get_response("more.question")
+            self.help(resp)
 
 
 def create_skill():
